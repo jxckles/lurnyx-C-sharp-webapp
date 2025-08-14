@@ -1,0 +1,20 @@
+# This file defines the services for your local development environment.
+# Run 'docker compose up -d' to start the services in the background.
+# Run 'docker compose down' to stop them.
+
+# version: "3.8" (the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion)
+
+services:
+  lurnyx-db:
+    container_name: lurnyx_sql_server
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "LuRnYXdB@2O25"
+    volumes:
+      - lurnyx_db_data:/var/opt/mssql
+
+volumes:
+  lurnyx_db_data:
+    driver: local
