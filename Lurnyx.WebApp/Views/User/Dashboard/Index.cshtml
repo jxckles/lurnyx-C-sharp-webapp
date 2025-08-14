@@ -1,0 +1,384 @@
+﻿@model Lurnyx.Services.ServiceModels.DashboardDto
+@{
+    ViewData["Title"] = "User Dashboard";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <link rel="stylesheet" href="~/css/output.css?v=1.0.0" />
+}
+
+<div>
+    <!-- Background Wave for Dark Mode -->
+    <img src="~/img/BackgroundWave2.svg"
+         class="fixed inset-0 w-screen h-screen object-cover opacity-0 dark:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"
+         alt="background wave">
+</div>
+
+<div class="container mx-auto px-6 py-8 dark:text-gray-100">
+
+    <!-- Welcome Section -->
+    <div class="mb-8 transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up">
+        <h1 class="text-4xl font-bold text-[#022b3a] dark:text-white mb-2">Welcome back, @User.Identity?.Name!</h1>
+        <p class="text-lg text-[#4b5563] dark:text-gray-100">Here's what's happening with your learning journey today.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Materials Viewed or Downloaded -->
+        <div class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-100">
+            <div class="flex justify-between items-center mb-3">
+                <div class="bg-[#bfdbf7] dark:bg-[#022B3A] rounded-lg w-11 h-14 flex items-center justify-center">
+                    <img src="~/img/dashboard_img/download.svg" alt="Download" class="w-5 h-5 dark:hidden" />
+                    <img src="~/img/dashboard_img/downloadwhite.svg" alt="Download" class="w-5 h-5 hidden dark:block" />
+                </div>
+                <span class="text-base text-[#6b7280] dark:text-blue-200">@Model.Stats.TotalTrainingsDownloadedChange</span>
+            </div>
+            <h3 class="text-2xl font-normal text-[#022b3a] dark:text-white mb-1">@Model.Stats.TotalTrainingsDownloaded</h3>
+            <p class="text-base text-[#4b5563] dark:text-blue-200">Total Materials Accessed</p>
+        </div>
+
+        <!-- Trainings Rated -->
+        <div class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-200">
+            <div class="flex justify-between items-center mb-3">
+                <div class="bg-[#bfdbf7] dark:bg-[#022B3A] rounded-lg w-12 h-14 flex items-center justify-center">
+                    <img src="~/img/dashboard_img/star.svg" alt="Rate" class="w-6 h-5 dark:hidden" />
+                    <img src="~/img/dashboard_img/starwhite.svg" alt="Rate" class="w-6 h-5 hidden dark:block" />
+                </div>
+                <span class="text-base text-[#6b7280] dark:text-blue-200">@Model.Stats.TrainingsRatedChange</span>
+            </div>
+            <h3 class="text-2xl font-normal text-[#022b3a] dark:text-white mb-1">@Model.Stats.TrainingsRated</h3>
+            <p class="text-base text-[#4b5563] dark:text-blue-200">Total Trainings Rated</p>
+        </div>
+
+        <!-- Most Viewed Training -->
+        <div class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-300">
+            <div class="flex justify-between items-center mb-3">
+                <div class="bg-[#bfdbf7] dark:bg-[#022B3A] rounded-lg w-12 h-14 flex items-center justify-center">
+                    <img src="~/img/dashboard_img/view.svg" alt="Views" class="w-6 h-5 dark:hidden" />
+                    <img src="~/img/dashboard_img/viewwhite.svg" alt="Views" class="w-6 h-5 hidden dark:block" />
+                </div>
+                <span class="text-base text-[#6b7280] dark:text-blue-200">@Model.Stats.MostViewedTrainingViews</span>
+            </div>
+            <h3 class="text-lg font-normal text-[#022b3a] dark:text-white mb-1">@Model.Stats.MostViewedTraining</h3>
+            <p class="text-base text-[#4b5563] dark:text-blue-200">Most Viewed Training by You</p>
+        </div>
+    </div>
+
+    <!-- Recent Activity and Training Progress -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Recent Accessed Trainings -->
+        <div class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-400">
+            <h2 class="text-xl font-bold text-[#022b3a] dark:text-white mb-6">Recent Accessed Trainings</h2>
+
+            <div class="space-y-6">
+                @if (Model.RecentActivities != null && Model.RecentActivities.Any())
+                {
+                    @foreach (var activity in Model.RecentActivities)
+                    {
+                        <div class="flex items-start transition-all duration-300 transform opacity-0 animate-fade-in">
+                            <div class="bg-[#1f7a8c] dark:bg-[#022B3A] rounded-full w-10 h-10 flex items-center justify-center mt-1 mr-4">
+                                <img src="~/img/dashboard_img/@activity.Icon" alt="@activity.Action" class="w-4 h-5" />
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-lg font-medium text-[#022b3a] dark:text-white"> @activity.Training</p>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-gray-700 dark:text-gray-200">
+                                        @activity.Action
+                                    </span>
+                                </div>
+                                <p class="text-base text-[#6b7280] dark:text-blue-200">
+                                    @activity.TimeAgo -
+                                    <span class="font-normal italic text-sm">
+                                        @activity.Badge.ToUpper()
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="flex flex-col items-center justify-center py-8 text-center transition-all duration-300 transform opacity-0 animate-fade-in">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-[#4b5563] dark:text-[#BFDBF7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-[#022b3a] dark:text-white mb-1">No Activity Yet</h3>
+                        <p class="text-[#6b7280] dark:text-[#BFDBF7]">Your learning activities will appear here</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Trainings Summary -->
+        <div class="bg-white dark:bg-gray-800/20 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-500">
+            <h2 class="text-xl font-bold text-[#022b3a] dark:text-white mb-6">Trainings Summary</h2>
+
+            <div class="space-y-6">
+                <!-- Completion Rate -->
+                <div class="flex justify-between items-center transition-all duration-300 transform opacity-0 animate-fade-in">
+                    <div class="flex-1">
+                        <p class="text-base text-[#022b3a] dark:text-white font-semibold">Training Progress</p>
+                        <p class="text-sm text-[#6b7280] dark:text-blue-200 italic">Completed Trainings / Enrolled Trainings</p>
+                    </div>
+                    <div class="text-right flex-1">
+                        <p class="text-xl text-[#1f7a8c] dark:text-[#BFDBF7]">@Model.Progress.CompletionRate%</p>
+                        <div class="w-full bg-[#f3f4f6] dark:bg-white rounded-full h-2 mt-2">
+                            <div class="bg-[#1f7a8c] dark:bg-[#0E495E] h-2 rounded-full transition-all duration-1000" style="width: @Model.Progress.CompletionRate%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Completed -->
+                <div class="flex justify-between items-center transition-all duration-300 transform opacity-0 animate-fade-in animate-delay-100">
+                    <div>
+                        <p class="text-base text-[#022b3a] dark:text-white font-semibold">Total Completed Trainings</p>
+                        <p class="text-sm text-[#6b7280] dark:text-blue-200 italic">Trainings you've completed so far</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl text-[#1f7a8c] dark:text-[#BFDBF7]">@Model.Progress.TotalCompletedTrainings</p>
+                        <p class="text-sm text-[#6b7280] dark:text-[#BFDBF7]">completed</p>
+                    </div>
+                </div>
+
+                <!-- Total Enrolled -->
+                <div class="flex justify-between items-center transition-all duration-300 transform opacity-0 animate-fade-in animate-delay-200">
+                    <div>
+                        <p class="text-base text-[#022b3a] dark:text-white font-semibold">Total Enrolled Trainings</p>
+                        <p class="text-sm text-[#6b7280] dark:text-blue-200 italic">Trainings you've enrolled</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl text-[#1f7a8c] dark:text-[#BFDBF7]">@Model.Progress.TotalTrainings</p>
+                        <p class="text-sm text-[#6b7280] dark:text-[#BFDBF7]">enrolled</p>
+                    </div>
+                </div>
+
+                <!-- Study Streak -->
+                <div class="flex justify-between items-center transition-all duration-300 transform opacity-0 animate-fade-in animate-delay-300">
+                    <div>
+                        <p class="text-base text-[#022b3a] dark:text-white font-semibold">Study Streak</p>
+                        <p class="text-sm text-[#6b7280] dark:text-blue-200 italic">Consecutive days</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl text-[#1f7a8c] dark:text-[#BFDBF7]">@Model.Progress.StudyStreak</p>
+                        <p class="text-sm text-[#6b7280] dark:text-[#BFDBF7]">days</p>
+                    </div>
+                </div>
+
+                <!-- Average Rating -->
+                <div class="flex justify-between items-center transition-all duration-300 transform opacity-0 animate-fade-in animate-delay-400">
+                    <div>
+                        <p class="text-base text-[#022b3a] dark:text-white font-semibold">Average Rating</p>
+                        <p class="text-sm text-[#6b7280] dark:text-blue-200 italic">Given by you</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl text-[#1f7a8c] dark:text-[#BFDBF7]">@Model.Progress.AverageRating.ToString("0.0")</p>
+                        <div class="flex mt-1">
+                            @{
+                                int fullStars = (int)Math.Floor(Model.Progress.AverageRating);
+                                bool hasHalfStar = Model.Progress.AverageRating - fullStars >= 0.5;
+
+                                for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= fullStars)
+                                    {
+                                        <!-- Full star -->
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    }
+                                    else if (i == fullStars + 1 && hasHalfStar)
+                                    {
+                                        <!-- Half star -->
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <defs>
+                                                <linearGradient id="half-star-@i" x1="0" x2="100%" y1="0" y2="0">
+                                                    <stop offset="50%" stop-color="currentColor" />
+                                                    <stop offset="50%" stop-color="gray" stop-opacity="0.3" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path fill="url(#half-star-@i)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <!-- Empty star -->
+                                        <svg class="w-4 h-4 text-gray-300 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View all trainings -->
+    <div class="transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up animate-delay-600">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-[#022b3a] dark:text-white">Suggested Trainings</h2>
+            @if (Model.SuggestedTrainings != null && Model.SuggestedTrainings.Any())
+            {
+                <a asp-action="Index" asp-controller="Trainings"
+                   class="text-[#1f7a8c] dark:text-[#BFDBF7] text-base font-normal hover:underline">
+                    View all trainings
+                </a>
+            }
+        </div>
+
+        <!-- Suggested Trainings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @if (Model.SuggestedTrainings != null && Model.SuggestedTrainings.Any())
+            {
+                @foreach (var training in Model.SuggestedTrainings)
+                {
+                    <div class="bg-white dark:bg-gray-800/40 rounded-lg border border-[#f3f4f6] dark:border-white/10 p-4 shadow-sm flex flex-col h-full backdrop-blur-sm transition-all duration-300 transform opacity-0 animate-fade-in">
+                        <img src="@training.ImageUrl" alt="@training.Title" class="w-full h-32 object-cover rounded-lg mb-3" />
+                        <h3 class="text-lg font-bold text-[#022b3a] dark:text-white mb-2">@training.Title</h3>
+                        <div class="mb-4 relative">
+                            <p class="text-base text-[#4b5563] dark:text-blue-200 description-text">@training.Description</p>
+                            <button class="text-sm text-[#1f7a8c] dark:text-white mt-1 read-more-btn hover:underline">Read more</button>
+                        </div>
+                        <div class="mt-auto flex justify-between items-center">
+                            <div class="flex items-center">
+                                @{
+                                    int trainingFullStars = (int)Math.Floor(training.Rating);
+                                    bool trainingHasHalfStar = training.Rating - trainingFullStars >= 0.5;
+
+                                    for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= trainingFullStars)
+                                        {
+                                            <!-- Full star -->
+                                            <svg class="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                        else if (i == trainingFullStars + 1 && trainingHasHalfStar)
+                                        {
+                                            <!-- Half star -->
+                                            <svg class="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <defs>
+                                                    <linearGradient id="half-star-training-@training.Id-@i" x1="0" x2="100%" y1="0" y2="0">
+                                                        <stop offset="50%" stop-color="currentColor" />
+                                                        <stop offset="50%" stop-color="gray" stop-opacity="0.3" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path fill="url(#half-star-training-@training.Id-@i)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <!-- Empty star -->
+                                            <svg class="w-4 h-4 text-gray-300 dark:text-gray-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                    }
+                                }
+                                <span class="text-sm text-[#4b5563] dark:text-blue-200">@training.Rating.ToString("0.0") (@training.ReviewCount)</span>
+                            </div>
+                            <a asp-action="Training" asp-controller="Trainings" asp-route-id="@training.Id" class="bg-[#1f7a8c] hover:bg-[#2FA3BA] dark:bg-[#1C4858] dark:hover:bg-[#255D72] text-white text-sm px-4 py-2 rounded-lg cursor-pointer transition-colors">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-span-full bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-8 text-center backdrop-blur-sm transition-all duration-500 transform translate-y-4 opacity-0 animate-fade-in-up">
+                    <div class="flex flex-col items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-[#1f7a8c] dark:text-[#BFDBF7] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        <h3 class="text-xl font-medium text-[#022b3a] dark:text-white mb-2">No Suggested Trainings Available</h3>
+                        <p class="text-[#6b7280] dark:text-[#BFDBF7] max-w-md mx-auto">
+                            You've either completed all our featured trainings or we're preparing new content for you.
+                            Check back soon or browse all trainings to find your next learning opportunity.
+                        </p>
+                        <a asp-action="Index" asp-controller="Trainings" class="mt-4 inline-flex items-center bg-[#1f7a8c] hover:bg-[#195b69] text-white px-5 py-2.5 rounded-lg transition-colors">
+                            Browse All Trainings
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ToastError" />
+
+    <script>
+        document.querySelectorAll('.read-more-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const description = e.target.previousElementSibling;
+                description.classList.toggle('expanded');
+                e.target.textContent = description.classList.contains('expanded') ? 'Read less' : 'Read more';
+            });
+        });
+    </script>
+
+    <style>
+        /* Animation classes */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Delays */
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+        }
+
+        .animate-delay-500 {
+            animation-delay: 0.5s;
+        }
+
+        .animate-delay-600 {
+            animation-delay: 0.6s;
+        }
+
+        /* Keyframes */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+}

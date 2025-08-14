@@ -1,0 +1,19 @@
+﻿.description-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+    .description-text.expanded {
+        -webkit-line-clamp: unset;
+    }
+
+.read-more-btn {
+    display: none;
+    cursor: pointer;
+}
+
+.description-text:not(:last-child) + .read-more-btn {
+    display: inline-block;
+}

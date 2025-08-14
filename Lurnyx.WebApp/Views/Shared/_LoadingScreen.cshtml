@@ -1,0 +1,49 @@
+﻿@using static Lurnyx.Resources.Views.Screen
+
+<div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 opacity-0 pointer-events-none">
+    <!-- Frosted glass background -->
+    <div class="absolute inset-0 backdrop-blur-md bg-white/70 dark:bg-[#022b3a]/70"></div>
+
+    <!-- Content container -->
+    <div class="relative z-10 flex flex-col items-center justify-center p-4 w-full h-full">
+        <!-- Dual logo with animation -->
+        <div class="w-[166px] h-[155px] relative mb-8">
+            <img src="~/img/LoadingLight.svg"
+                 class="h-full w-full object-contain dark:hidden animate-pulse-bounce"
+                 alt="light logo">
+            <img src="~/img/LoadingDark.svg"
+                 class="h-full w-full object-contain hidden dark:block animate-pulse-bounce"
+                 alt="dark logo">
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Pulse-bounce animation */
+    @@keyframes pulse-bounce {
+        0%, 100%
+
+    {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05) translateY(-5px);
+    }
+
+    }
+
+    .animate-pulse-bounce {
+        animation: pulse-bounce 1.5s ease-in-out infinite;
+    }
+
+    /* Frosted glass effect */
+    #loadingOverlay > div:first-child {
+        transition: background-color 300ms ease;
+    }
+
+    /* Smooth overlay transition */
+    #loadingOverlay {
+        transition: opacity 300ms ease;
+    }
+</style>

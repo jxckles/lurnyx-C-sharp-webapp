@@ -1,0 +1,223 @@
+@using Lurnyx.Data.Models
+@using Lurnyx.Services.ServiceModels
+
+@model PaginatedList<TrainingCategoryDto>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Training Categories";
+}
+
+<!-- Backdrop Blur Overlay -->
+<div id="modalBackdrop" class="hidden fixed inset-0 backdrop-blur-xs z-40"></div>
+<!-- Delete Confirmation Modal -->
+<div id="popupModal" tabindex="-1" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-lg">
+        <div class="relative bg-white rounded-xl shadow-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold text-gray-800">Delete Training Category</h1>
+                <button type="button" onclick="hideModal()"
+                    class="text-gray-400 hover:text-gray-500 rounded-full p-1 hover:bg-gray-100 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="space-y-4">
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-red-100 rounded-full mb-3">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-800">Are you sure?</h3>
+                    <p class="text-gray-600 text-md">You are about to delete the category "<span
+                            id="modalCategoryName" class="font-bold text-gray-800"></span>". This action cannot be
+                        undone.</p>
+                </div>
+
+                <div class="max-w-xl bg-red-100 rounded-lg border border-red-300 p-4 flex items-start gap-3">
+                    <div>
+                        <p class="text-red-800 font-normal mb-1"><span class="font-semibold">WARNING:</span>
+                            Deleting this category will unlink <span class="font-semibold" id="modalTrainingCount"></span>
+                            and <span class="font-semibold" id="modalTopicCount"></span>
+                            associated with it.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <form id="deleteForm" method="POST" asp-action="Delete" asp-controller="TrainingCategory" class="flex gap-3 mt-6">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deleteCategoryId" name="id" value="" />
+                    <button type="button" onclick="hideModal()"
+                        class="flex-1 py-2.5 px-4 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 py-2.5 px-4 text-sm font-medium text-white bg-red-600 rounded-lg border border-transparent hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                        Delete Training Category
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container px-4 pt-2 py-4 mx-auto">
+    <!-- Page Heading -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Manage Training Categories</h1>
+        <a asp-action="Create" asp-controller="TrainingCategory" class="group flex items-center bg-[#1F7A8C] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#195b69] transition-all duration-300 hover:shadow-lg font-bold">
+            <i class="fas fa-plus mr-2"></i>
+            Add Training Category
+        </a>
+    </div>
+
+<!-- Updated Search Form -->
+<form asp-action="Index" asp-controller="TrainingCategory" method="get" id="searchForm"
+      class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
+    <div class="flex flex-col md:flex-row gap-4 items-end">
+        <!-- Search Input with Clear Button -->
+        <div class="relative flex-grow w-full md:w-auto">
+            <div class="relative">
+                <input type="text" id="searchQuery" name="searchQuery" placeholder="Search by training category title..."
+                       class="h-11 px-4 pr-8 rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full shadow-sm bg-white text-gray-700 transition-all duration-200 peer"
+                       value="@ViewData["CurrentFilter"]">
+                <!-- Search Icon (hidden when input has value) -->
+                <div class="absolute right-3 top-3 peer-[&:not(:placeholder-shown)]:hidden">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <!-- Clear Button (only visible when there's text) -->
+                <button type="button" onclick="clearSearchBar()"
+                        class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 hidden peer-[&:not(:placeholder-shown)]:block">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 w-full md:w-auto">
+            <button type="submit"
+                    class="group flex items-center bg-[#1F7A8C] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#195b69] transition-all duration-300 hover:shadow-lg font-medium h-11">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Search
+            </button>
+        </div>
+    </div>
+</form>
+<div class="bg-transparent shadow rounded-lg w-full">
+    <div class="bg-transparent border-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+        @if (Model != null && Model.Items.Any())
+        {
+            @foreach (var category in Model.Items)
+            {
+                <div class="w-full bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                    <div class="relative">
+                        <img class="w-full h-48 object-cover" src="@(Url.Content(category.CoverImageUrl ?? "https://placehold.co/400x250?text=No+Image"))" alt="Cover image for @category.Name" />
+                        <div class="absolute top-3 right-3">
+                            <button class="bg-white/90 rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors dropdown-button" data-dropdown="dropdownMenu-@category.Id">
+                                <i class="fas fa-ellipsis-v text-gray-600"></i>
+                            </button>
+                            <div id="dropdownMenu-@category.Id" class="hidden absolute right-0 mt-2 z-10 w-32 bg-white rounded-md shadow-lg py-1 border border-gray-200">
+                                <a asp-action="Details" asp-controller="TrainingCategory" asp-route-id="@category.Id" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-eye mr-2 text-blue-500"></i>View</a>
+                                <a asp-action="Edit" asp-controller="TrainingCategory" asp-route-id="@category.Id" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-edit mr-2 text-green-500"></i>Edit</a>
+                                <button onclick="showModal('@category.Id', '@category.Name', '@category.TrainingCount', '@category.TopicCount')" class="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"><i class="fas fa-trash-alt mr-2"></i>Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-5 pt-3 flex justify-start space-x-5 border-t border-gray-200">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-gray-800">@category.TrainingCount</p>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">@(category.TrainingCount < 2 ? "Training" : "Trainings")</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-gray-800">@category.TopicCount</p>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">@(category.TopicCount < 2 ? "Topic" : "Topics")</p>
+                        </div>
+                    </div>
+                    <div class="px-5 py-4">
+                        <h3 class="text-lg font-bold text-gray-900 mb-1 truncate uppercase">@category.Name</h3>
+                        <div class="flex justify-between text-sm text-gray-500 mb-2">
+                            <span>Updated: @category.UpdatedAt.ToString("MM/dd/yyyy")</span>
+                            <span>Created: @category.CreatedAt.ToString("MM/dd/yyyy")</span>
+                        </div>
+                        <p class="text-sm text-gray-600 line-clamp-2">@category.Description</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500">No training categories found.</p>
+            </div>
+        }
+    </div>
+    <partial name="_Pagination" model="Model" />
+</div>
+</div>
+
+@section Scripts {
+    <partial name="_ToastError" />
+    <script>
+        document.querySelectorAll('.dropdown-button').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const dropdownId = this.getAttribute('data-dropdown');
+                const dropdownMenu = document.getElementById(dropdownId);
+
+                // Close all other dropdowns
+                document.querySelectorAll('[id^="dropdownMenu-"]').forEach(menu => {
+                    if (menu.id !== dropdownId) {
+                        menu.classList.add('hidden');
+                    }
+                });
+
+                dropdownMenu.classList.toggle('hidden');
+            });
+        });
+
+        document.addEventListener('click', function () {
+            document.querySelectorAll('[id^="dropdownMenu-"]').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        function showModal(categoryId, categoryName, trainingCount, topicCount) {
+            document.getElementById('deleteCategoryId').value = categoryId;
+            document.getElementById('modalCategoryName').textContent = categoryName;
+            document.getElementById('modalTrainingCount').textContent = trainingCount + (trainingCount == 1 ? " training" : " trainings");
+            document.getElementById('modalTopicCount').textContent = topicCount + (topicCount == 1 ? " topic" : " topics");
+
+            document.getElementById('popupModal').classList.remove('hidden');
+            document.getElementById('modalBackdrop').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('popupModal').classList.add('hidden');
+            document.getElementById('modalBackdrop').classList.add('hidden');
+        }
+
+
+        function clearSearchBar() {
+
+            document.getElementById('searchQuery').value = '';
+
+            document.getElementById('searchQuery').focus();
+        }
+
+    </script>
+}

@@ -1,0 +1,97 @@
+﻿.media-container {
+    width: 100%;
+    max-width: 1200px;
+    height: 500px;
+    margin: 0 auto 2rem;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+    .btn-group button {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 1rem;
+    }
+
+
+/* Additional interactive styles */
+.topic-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+    .topic-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border-left-color: #1F7A8C;
+    }
+
+.resource-card {
+    transition: all 0.2s ease;
+}
+
+    .resource-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+.progress-tracker {
+    position: sticky;
+    top: 20px;
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+    .progress-dot.active {
+        background-color: #1F7A8C;
+        transform: scale(1.3);
+    }
+
+    .progress-dot.completed {
+        background-color: #10B981;
+    }
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+    .collapsible-content.expanded {
+        max-height: 2000px; /* Adjust based on content */
+    }
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+    .toggle-icon.expanded {
+        transform: rotate(180deg);
+    }
+
+.search-box {
+    transition: all 0.3s ease;
+}
+
+    .search-box:focus {
+        box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.2);
+    }
+
+.view-btn, .download-btn, .view-external-btn {
+    transition: all 0.2s ease;
+}
+
+    .view-btn:hover, .download-btn:hover, .view-external-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

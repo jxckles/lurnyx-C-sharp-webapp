@@ -1,0 +1,124 @@
+@model Lurnyx.Services.ServiceModels.TrainingCategoryDto
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "View Training Category";
+}
+
+<div class="mx-auto p-6 bg-white rounded-2xl shadow-sm">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-2 w-full">
+        <h1 class="text-3xl font-bold text-[#022b3a] mb-2">@Model.Name</h1>
+        <a href="@Url.Action("Index", "TrainingCategory")"
+            class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center">
+            @* Remove here the back icon, since there are instances where the user is not coming from the categroy list screen *@
+            View Training Category List
+        </a>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="relative pb-0 rounded-xl overflow-hidden shadow-md">
+        <img class="w-full h-60 object-cover"
+            src="@(!string.IsNullOrEmpty(Model.CoverImageUrl) ? Model.CoverImageUrl : "https://placehold.co/902x237?text=No+Image")"
+            alt="@Model.Name" />
+        <div class="absolute bottom-4 right-4">
+            <a href="@Url.Action("Edit", "TrainingCategory", new { id = @Model.Id })"
+                class="text-sm font-medium bg-[#1F7A8C] text-white py-2.5 px-5 rounded-lg flex items-center cursor-pointer hover:bg-[#2FA3BA] transition-colors duration-200 shadow-md hover:shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24
+                    24" stroke="currentColor">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Training Category
+            </a>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <p class="text-lg text-[#022b3a]/80 font-medium my-6 text-center max-w-3xl mx-auto">
+        @Model.Description
+    </p>
+
+    <!-- Stats Cards -->
+    <div class="flex justify-center gap-8 mb-10">
+        <!-- Trainings Card -->
+        <div class="w-64 h-48 bg-[#e1e5f2] rounded-xl p-6 flex flex-col items-center justify-center relative">
+            <div class="w-full h-full rounded-lg mb-4 items-center flex justify-center">
+                <i class="fa-solid fa-book-open text-6xl text-[#022b3a]"></i>
+            </div>
+            <span class="text-5xl font-bold text-[#022b3a] mb-2">@Model.TrainingCount</span>
+            <span class="text-lg text-[#022b3a]/80 font-medium">@(Model.TrainingCount < 2 ? "TRAINING" :
+                                "TRAININGS")</span>
+        </div>
+
+        <!-- Topics Card -->
+        <div class="w-64 h-48 bg-[#e1e5f2] rounded-xl p-6 flex flex-col items-center justify-center relative">
+            <div class="w-full h-full rounded-lg mb-4 items-center flex justify-center">
+                <i class="fa-solid fa-file text-6xl text-[#022b3a]"></i>
+            </div>
+            <span class="text-5xl font-bold text-[#022b3a] mb-2">@Model.TopicCount</span>
+            <span class="text-lg text-[#022b3a] font-medium">@(Model.TopicCount < 2 ? "TOPIC" : "TOPICS")</span>
+        </div>
+    </div>
+
+    <!-- Info Sections -->
+    <div class="flex gap-3 justify-between">
+        <!-- Created Date -->
+        <div class="bg-white/90 w-full rounded-xl border border-[#bfdbf7] p-5 flex items-center gap-4">
+            <div class="w-8 h-8 rounded-sm items-center flex justify-center">
+                <i class="fa-regular fa-calendar text-gray-500 text-3xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-black/70 font-medium uppercase">Created at:</p>
+                <p class="text-lg text-black/70 font-bold">@Model.CreatedAt.ToString("MM/dd/yyyy")</p>
+            </div>
+        </div>
+
+        <!-- MOdifed Date -->
+        <div class="bg-white/90 w-full rounded-xl border border-[#bfdbf7] p-5 flex items-center gap-4">
+            <div class="w-8 h-8 rounded-sm items-center flex justify-center">
+                <i class="fa-regular fa-calendar text-gray-500 text-3xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-black/70 font-medium uppercase">Modified at:</p>
+                <p class="text-lg text-black/70 font-bold">@Model.UpdatedAt.ToString("MM/dd/yyyy")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h3 class="text-2xl font-bold text-[#022b3a] mb-4">Trainings in this Category</h3>
+
+        <div class="grid gap-y-2">
+            @if (Model.Trainings != null && Model.Trainings.Any())
+            {
+                foreach (var training in Model.Trainings)
+                {
+                    <a href="@Url.Action("Details", "Training", new { id = training.Id })">
+                        <div
+                            class="bg-white/90 rounded-xl border border-[#bfdbf7] p-4 flex items-center gap-4 hover:bg-[#f5f8ff] transition-colors ">
+                            <div class="w-8 h-8 bg-[#e1e5f2] rounded-lg flex items-center justify-center">
+                                <i class="fa-solid fa-book-open text-[#022b3a]"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-[#022b3a]">@training.Title</h4>
+                                <p class="text-sm text-[#022b3a]/70 line-clamp-2">@training.Description</p>
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="bg-white/90 rounded-xl border border-[#bfdbf7] p-6 text-center">
+                    <p class="text-[#022b3a]/70">No trainings available for this topic yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ToastError" />
+}

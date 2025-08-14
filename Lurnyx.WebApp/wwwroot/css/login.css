@@ -1,0 +1,88 @@
+.gradient-custom-2 {
+    /* fallback for old browsers */
+    background: #ff0000; /* Red */
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, #ff0000, #000000); /* Red, Black */
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, #ff0000, #000000); /* Red, Black */
+}
+
+.login-btn {
+    width: 180px;
+}
+
+.register-box {
+    width: 600px;
+}
+
+/* Carousel Styles */
+#carousel-slides {
+    transition: transform 0.5s ease-in-out;
+}
+
+.indicator-dot {
+    transition: background-color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .gradient-form {
+        height: 100vh !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .gradient-custom-2 {
+        border-top-right-radius: .3rem;
+        border-bottom-right-radius: .3rem;
+    }
+}
+
+/* Ensure the container doesn't block clicks */
+.login-container, .register-container {
+    position: relative;
+    pointer-events: none; /* This allows clicks to pass through to children */
+}
+
+    /* Enable pointer events specifically for interactive elements */
+    .login-container > *, .register-container > * {
+        pointer-events: auto;
+    }
+
+/* Special rule for the theme toggle */
+#login-theme-toggle {
+    pointer-events: auto !important;
+    z-index: 1000 !important;
+}
+
+/* Pulse-bounce animation */
+@keyframes pulse-bounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05) translateY(-5px);
+    }
+}
+
+/* Increase pulse-bounce duration */
+.animate-pulse-bounce {
+    animation: pulse-bounce 3s ease-in-out infinite; /* Increased from 1.5s */
+}
+
+
+/* Frosted glass effect */
+#loadingOverlay > div:first-child {
+    transition: background-color 300ms ease;
+}
+
+/* Slow down the fade-in */
+#loadingOverlay {
+    transition: opacity 800ms ease; /* Increased from 300ms */
+}
+
+/* Disabled button styles */
+button[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

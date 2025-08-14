@@ -1,0 +1,142 @@
+@model Lurnyx.Services.ServiceModels.UserDto
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/output.css?v=1.0.0" />
+}
+
+<!-- Background Wave for Dark Mode -->
+<div>
+    <img src="~/img/BackgroundWave2.svg"
+         class="fixed inset-0 w-screen h-screen object-cover opacity-0 dark:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"
+         alt="background wave">
+</div>
+
+<!-- Main container with fade-in animation -->
+<div class="min-h-screen container mx-auto px-4 sm:px-6 pb-12 space-y-6 sm:space-y-8 dark:text-gray-100">
+    <!-- Breadcrumb with fade-in-down animation -->
+    <div class="h-16 border-b border-gray-300 dark:border-white/20 flex items-center text-base font-normal text-lg transition-all duration-500 transform opacity-0 animate-fade-in-down">
+        <a asp-controller="Profile" asp-action="Index"
+           class="text-gray-500 dark:text-gray-400 hover:text-blue-600 flex items-center space-x-2 dark:hover:text-[#1DE6D0] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2 rounded">
+            <span>User Profile</span>
+        </a>
+        <span class="text-slate-500 dark:text-gray-400 mx-2">/</span>
+        <span class="text-[#022B3A] dark:text-[#1DE6D0] font-semibold">Edit Profile</span>
+    </div>
+
+    <!-- Header with fade-in-down animation -->
+    <div class="mt-4 transition-all duration-500 transform opacity-0 animate-fade-in-down" style="animation-delay: 100ms">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Edit Your Profile</h1>
+        <p class="text-[#64748b] dark:text-gray-200 mt-1 sm:mt-2">Update your profile information and preferences</p>
+    </div>
+
+    <!-- Form with fade-in-up animation -->
+    <form asp-action="Edit" method="post" class="space-y-6 sm:space-y-8 transition-all duration-500 transform opacity-0 animate-fade-in-up">
+        <div class="bg-white dark:bg-teal-900/20 rounded-lg shadow-sm border border-gray-200 dark:border-white/20 p-6 sm:p-8 backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-[#1F7A8C]/30">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">Profile Information</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div>
+                    <label for="FirstName" class="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-200 mb-1 sm:mb-2">First Name</label>
+                    <input asp-for="FirstName" type="text" id="FirstName"
+                           class="w-full px-4 py-2.5 sm:py-3 bg-zinc-100/30 border border-gray-300 rounded-lg text-sm sm:text-base text-black font-normal focus:ring-2 focus:ring-[#1f7a8c] focus:border-transparent transition-colors duration-200 dark:text-white dark:bg-gray-800/10 dark:border-white/30 dark:focus:ring-[#2FA3BA]" />
+                    <span asp-validation-for="FirstName" class="text-xs text-red-500 mt-1"></span>
+                </div>
+                <div>
+                    <label for="LastName" class="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-200 mb-1 sm:mb-2">Last Name</label>
+                    <input asp-for="LastName" type="text" id="LastName"
+                           class="w-full px-4 py-2.5 sm:py-3 bg-zinc-100/30 border border-gray-300 rounded-lg text-sm sm:text-base text-black font-normal focus:ring-2 focus:ring-[#1f7a8c] focus:border-transparent transition-colors duration-200 dark:text-white dark:bg-gray-800/10 dark:border-white/30 dark:focus:ring-[#2FA3BA]" />
+                    <span asp-validation-for="LastName" class="text-xs text-red-500 mt-1"></span>
+                </div>
+                <div>
+                    <label for="Email" class="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-200 mb-1 sm:mb-2">Email Address</label>
+                    <input asp-for="Email" type="email" id="Email" readonly
+                           class="w-full px-4 py-2.5 sm:py-3 bg-zinc-100/30 border border-gray-300 rounded-lg text-sm sm:text-base text-black font-normal focus:ring-2 focus:ring-[#1f7a8c] focus:border-transparent transition-colors duration-200 dark:text-white dark:bg-gray-800/10 dark:border-white/20 dark:focus:ring-[#2FA3BA]" />
+                    <span asp-validation-for="Email" class="text-xs text-red-500 mt-1"></span>
+                </div>
+                <div>
+                    <label for="Role" class="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-200 mb-1 sm:mb-2">Role</label>
+                    <div class="w-full px-4 py-2.5 sm:py-3 bg-gray-100 border border-gray-300 rounded-lg text-sm sm:text-base text-gray-600 dark:text-gray-300 dark:bg-gray-800/20 dark:border-gray-600">
+                        @Model.Role.ToString().Replace('_', ' ').ToLower()
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action buttons with fade-in animation -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 transition-all duration-500 transform opacity-0 animate-fade-in" style="animation-delay: 200ms">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <a asp-controller="Profile" asp-action="Index"
+                   class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 dark:border-white/20 rounded-lg text-gray-700 dark:text-white text-sm sm:text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-4 sm:px-6 py-2 sm:py-3 bg-[#1f7a8c] hover:bg-[#2FA3BA] dark:bg-[#033F55] dark:hover:bg-[#255D72] text-white text-sm sm:text-base font-medium rounded-lg transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    /* Animation classes - consistent with other pages */
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-fade-in-down {
+        animation: fadeInDown 0.6s ease-out forwards;
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Keyframes */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

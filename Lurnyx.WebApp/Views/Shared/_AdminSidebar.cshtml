@@ -1,0 +1,76 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var profileImageUrl = User.Claims.FirstOrDefault(c => c.Type == "profile_image_url")?.Value;
+    var finalImageUrl = string.IsNullOrEmpty(profileImageUrl) ? Url.Content("~/img/avatar.png") :
+    Url.Content(profileImageUrl);
+
+    bool isUserRoute = Context.Request.Path.Value?.Contains("/User") ?? false;
+    bool isTrainingCatRoute = Context.Request.Path.Value?.Contains("/TrainingCategory") ?? false;
+    bool isTrainingRoute = Context.Request.Path.Value?.Contains("/Training/") ?? false;
+    bool isTopicRoute = Context.Request.Path.Value?.Contains("/Topic") ?? false;
+}
+
+<div class="flex min-h-screen bg-gray-50">
+    <!-- Enhanced Sidebar -->
+    <div class="fixed h-full w-64 px-4 pb-6 pt-4 overflow-y-auto bg-white border-r border-gray-200 shadow-sm flex flex-col">
+        <!-- Logo/Branding -->
+        <div class="flex-shrink-0 px-2 mb-4 mt-4">
+            <div class="flex justify-center">
+                <img src="~/img/LurnyxFooterLogo.svg" alt="Lurnyx Admin Logo" class="max-h-20 w-auto object-contain mx-auto" />
+            </div>
+        </div>
+
+        <hr class="border-gray-200 my-2" />
+
+        <!-- Main Navigation -->
+        <nav class="flex-1 space-y-1 overflow-y-auto">
+            <!-- Section Heading -->
+            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Management
+            </p>
+
+            <!-- Navigation Items -->
+            <a asp-controller="Users" asp-action="Index"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all
+                text-gray-700 hover:bg-[#022B3A] hover:text-white
+                group-[.active]:bg-blue-100 group-[.active]:text-blue-600
+                active:bg-blue-100/70 @(isUserRoute ? "bg-[#022B3A] text-white" : "text-gray-700 hover:bg-[#022B3A] hover:text-white")">
+                <i class="fa-solid fa-user w-5 text-center mr-3 text-gray-400 group-[.active]:text-blue-500"></i>
+                <span>Accounts</span>
+            </a>
+
+            <a asp-controller="TrainingCategory" asp-action="Index"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all
+                text-gray-700 hover:bg-[#022B3A] hover:text-white
+                group-[.active]:bg-blue-100 group-[.active]:text-blue-600 @(isTrainingCatRoute ? "bg-[#022B3A] text-white" : "text-gray-700 hover:bg-[#022B3A] hover:text-white")">
+                <i class="fa-solid fa-layer-group w-5 text-center mr-3 text-gray-400 group-[.active]:text-blue-500"></i>
+                <span>Training Categories</span>
+            </a>
+
+            <a asp-controller="Training" asp-action="Index"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all
+                text-gray-700 hover:bg-[#022B3A] hover:text-white
+                group-[.active]:bg-blue-100 group-[.active]:text-blue-600 @(isTrainingRoute ? "bg-[#022B3A] text-white" : "text-gray-700 hover:bg-[#022B3A] hover:text-white")">
+                <i class="fa-solid fa-chalkboard-user w-5 text-center mr-3 text-gray-400 group-[.active]:text-blue-500"></i>
+                <span>Trainings</span>
+            </a>
+
+            <a asp-controller="Topic" asp-action="Index"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all
+                text-gray-700 hover:bg-[#022B3A] hover:text-white
+                group-[.active]:bg-blue-100 group-[.active]:text-blue-600  @(isTopicRoute ? "bg-[#022B3A] text-white" : "text-gray-700 hover:bg-[#022B3A] hover:text-white")">
+                <i class="fa-solid fa-lines-leaning w-5 text-center mr-3 text-gray-400 group-[.active]:text-blue-500"></i>
+                <span>Topics</span>
+            </a>
+        </nav>
+
+        <!-- User Profile & Logout -->
+        <div class="flex-shrink-0 p-4 mt-auto">
+            <div class="flex flex-col items-center">
+                <img class="w-16 h-16 rounded-full object-cover mb-2" src="@finalImageUrl" alt="User">
+                <p class="text-sm font-medium text-gray-700 truncate max-w-[180px]">@User.Identity?.Name</p>
+            </div>
+        </div>
+    </div>
+</div>

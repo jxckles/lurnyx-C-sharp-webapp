@@ -1,0 +1,197 @@
+@model Lurnyx.Services.ServiceModels.UserDto
+@{
+    ViewData["Title"] = "Change Photo";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/output.css?v=1.0.0" />
+}
+
+<!-- Background Wave for Dark Mode -->
+<div>
+    <img src="~/img/BackgroundWave2.svg"
+         class="fixed inset-0 w-screen h-screen object-cover opacity-0 dark:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"
+         alt="background wave">
+</div>
+
+<!-- Main container with fade-in animation -->
+<div class="min-h-screen">
+    <!-- Main Container -->
+    <form asp-action="ChangePhoto" method="post" enctype="multipart/form-data"
+          class="container mx-auto px-4 sm:px-6 pb-12 space-y-6 sm:space-y-8 dark:text-gray-100">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" value="@Model.Id" asp-for="@Model.Id" />
+
+        <!-- Breadcrumb with fade-in-down animation -->
+        <div class="h-16 border-b border-gray-300 dark:border-white/20 flex items-center text-base font-normal text-lg transition-all duration-500 transform opacity-0 animate-fade-in-down">
+            <a asp-controller="Profile" asp-action="Index"
+               class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-[#1DE6D0] flex items-center space-x-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2 rounded">
+                <span>User Profile</span>
+            </a>
+            <span class="text-slate-500 dark:text-gray-400 mx-2">/</span>
+            <span class="text-[#022B3A] dark:text-[#1DE6D0] font-semibold">Change Profile Picture</span>
+        </div>
+
+        <!-- Header with fade-in-down animation -->
+        <div class="transition-all duration-500 transform opacity-0 animate-fade-in-down" style="animation-delay: 100ms">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-4">Change Profile Picture</h1>
+            <p class="text-[#64748b] dark:text-gray-200 mt-1 sm:mt-2">Upload and crop your new profile picture</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row justify-center gap-6 sm:gap-8">
+            <!-- Current Photo with fade-in-up animation -->
+            <div class="w-full lg:w-96 bg-white dark:bg-teal-900/20 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-[#1F7A8C]/30 opacity-0 animate-fade-in-up" style="animation-delay: 200ms">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Current Photo</h2>
+                <div class="flex justify-center mb-4 sm:mb-6 my-auto items-center">
+                    <div class="relative w-40 h-40 sm:w-60 sm:h-60 rounded-full overflow-hidden border-2 border-gray-200 dark:border-white/20 transform hover:scale-105 transition-transform duration-300">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <img src="@Model.ProfileImageUrl" alt="Current Profile"
+                                 class="absolute inset-0 w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <div class="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                <span class="text-gray-500 dark:text-gray-300">No Image</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <p class="text-sm sm:text-base text-gray-500 dark:text-blue-200 text-center">Your current profile picture</p>
+            </div>
+
+            <!-- New Photo with fade-in-up animation -->
+            <div class="w-full lg:w-96 bg-white dark:bg-teal-900/20 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md hover:border-[#1F7A8C]/30 opacity-0 animate-fade-in-up" style="animation-delay: 300ms">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">New Photo</h2>
+
+                <div class="w-full min-h-[16rem] sm:min-h-[20rem]">
+                    <!-- Initial Upload State -->
+                    <div id="uploadArea"
+                         class="h-full border-2 border-dashed border-gray-300 dark:border-white/20 rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center text-center bg-gray-50/50 dark:bg-gray-700/20 transition-colors duration-200">
+                        <picture class="w-16 h-16 sm:w-20 sm:h-20 mb-3 sm:mb-4">
+                            <source srcset="~/img/image-upload-dark.svg" media="(prefers-color-scheme: dark)">
+                            <img id="uploadIcon" src="~/img/image-upload-light.svg" alt="Upload Icon"
+                                 class="w-full h-full object-contain" />
+                        </picture>
+
+                        <p class="text-base sm:text-lg font-medium text-gray-800 dark:text-gray-200">Drag & drop a photo here</p>
+                        <p class="text-sm sm:text-base text-gray-500 dark:text-blue-200 mb-4 sm:mb-6 mt-1">
+                            JPG, PNG or GIF. Max size 2MB.<br />
+                            Recommended: 400px x 400px or larger
+                        </p>
+
+                        <!-- File Upload Button -->
+                        <label for="ImageFile"
+                               class="inline-flex items-center px-4 sm:px-6
+                                      py-2 sm:py-3 border border-gray-300 dark:border-white/20 rounded-lg text-gray-700 dark:text-white text-sm sm:text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Select Image
+                            <input type="file" id="ImageFile" asp-for="ImageFile" name="ImageFile"
+                                   accept="image/png, image/jpeg, image/webp" class="hidden"
+                                   onchange="validateAndPreviewImage(this)" />
+                        </label>
+                    </div>
+
+                    <!-- Preview State -->
+                    <div id="imagePreviewContainer"
+                         class="hidden w-full h-full flex flex-col items-center justify-center relative">
+                        <div class="relative w-40 h-40 sm:w-60 sm:h-60 mx-auto rounded-full overflow-hidden border-2 border-gray-200 dark:border-white/20 mb-4 transform hover:scale-105 transition-transform duration-300">
+                            <img id="imagePreview" class="absolute inset-0 w-full h-full object-cover" />
+                        </div>
+                        <button type="button" onclick="clearImage()"
+                                class="absolute top-1 right-0 bg-white/80 dark:bg-gray-800/80 rounded-full p-1 hover:bg-white dark:hover:bg-gray-700 transition-colors">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <p class="text-sm sm:text-base text-gray-500 dark:text-blue-200 mb-4">
+                            Image ready to upload
+                        </p>
+                    </div>
+                </div>
+                <span id="imageValidationError" class="text-red-500 text-xs mt-2 hidden"></span>
+            </div>
+        </div>
+
+        <!-- Action Buttons with fade-in animation -->
+        <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8 transition-all duration-500 transform opacity-0 animate-fade-in" style="animation-delay: 400ms">
+            <a asp-controller="Profile" asp-action="Index"
+               class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 dark:border-white/20 rounded-lg text-gray-700 dark:text-white text-sm sm:text-base font-medium hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Cancel
+            </a>
+            <button type="submit" id="save-button"
+                    class="px-4 sm:px-6 py-2 sm:py-3 bg-[#1f7a8c] hover:bg-[#2FA3BA] dark:bg-[#72b4cc] dark:hover:bg-[#1C4858] text-white text-sm sm:text-base font-medium rounded-lg transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#1F7A8C] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ToastError" />
+    @await Html.PartialAsync("_ImageValidationScriptPartial")
+}
+
+<style>
+    /* Animation classes - consistent with other pages */
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-fade-in-down {
+        animation: fadeInDown 0.6s ease-out forwards;
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Keyframes */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

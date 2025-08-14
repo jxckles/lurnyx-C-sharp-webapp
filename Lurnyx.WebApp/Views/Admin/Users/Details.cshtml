@@ -1,0 +1,117 @@
+@using static Lurnyx.Resources.Constants.Enums
+@model Lurnyx.Services.ServiceModels.UserDto
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "View User Account";
+}
+<div class="container px-4 py-8">
+    <!-- Page Heading -->
+    <div class="flex justify-between items-center mb-6 w-full ">
+        <div class="flex items-center">
+
+            <h1 class="text-2xl font-bold text-gray-800">User Details</h1>
+        </div>
+        <a href="@Url.Action("Index")"
+            class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center">
+            @* Remove here the back icon, since there are instances where the user is not coming from the user list screen *@
+            View User List
+        </a>
+    </div>
+    <div class="w-full  bg-white rounded-lg shadow-sm overflow-hidden">
+
+        <div class="grid items-center justify-center ">
+            <div class="grid w-auto h-28 rounded-full border-4 border-white bg-gray-100 overflow-hidden">
+                <img class="w-full h-28 object-cover" src=@(!string.IsNullOrEmpty(Model.ProfileImageUrl) ? Model.ProfileImageUrl : Url.Content("~/img/avatar.png")) alt="User Avatar">
+            </div>
+
+        </div>
+
+
+        <!-- User Info Section -->
+        <div class="px-6  pb-6">
+            <!-- User ID and Actions -->
+            <div class="flex space-x-2 mb-4 justify-end">
+                <a href="@Url.Action("Edit", "Users", new { id = @Model.Id })"
+                    class="text-sm font-medium bg-[#1F7A8C] text-white py-2.5 px-5 rounded-lg flex items-center cursor-pointer hover:bg-[#2FA3BA] transition-colors duration-200 shadow-md hover:shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24
+                    24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit User
+                </a>
+            </div>
+
+
+            <!-- Main User Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- First Name Card -->
+                <div class="flex items-center px-3 py-2 border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-user text-2xl text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">First Name</h2>
+                        <p class="text-lg font-bold text-[#022B3A]">@Model.FirstName</p>
+                    </div>
+                </div>
+
+                <!-- Last Name Card -->
+                <div class="flex items-center px-3 py-2 border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-user text-2xl text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">Last Name</h2>
+                        <p class="text-lg font-bold text-[#022B3A]">@Model.LastName</p>
+                    </div>
+                </div>
+
+                <!-- Email Card -->
+                <div class="flex items-center  px-3 py-2 border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-envelope text-lg text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">Email</h2>
+                        <p class="text-lg font-medium text-[#1F7A8C]">@Model.Email</p>
+                    </div>
+                </div>
+
+                <!-- Role Card -->
+                <div class="flex items-center  px-3 py-2 border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-user-shield text-xl text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">Role</h2>
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold @(Model.Role == UserRole.SUPER_ADMIN ? "badge-super-admin" : (@Model.Role == UserRole.ADMIN ? "badge-admin" : "badge-user"))">
+                            @Model.Role.ToString().Replace("_", " ").ToLower()
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Created At Card -->
+                <div class="flex items-center  px-3 py-2  border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-calendar-plus text-xl text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">Created</h2>
+                        <p class="text-base text-gray-800">@Model.CreatedAt.ToString("MM/dd/yyyy")</p>
+                    </div>
+                </div>
+
+                <!-- Last Modified Card -->
+                <div class="flex items-center  px-3 py-2 border border-gray-200 rounded-lg">
+                    <i class="fa-solid fa-calendar-check text-xl text-gray-600 mr-3 mt-1"></i>
+                    <div>
+                        <h2 class="text-xs font-medium text-gray-600 uppercase">Last Modified</h2>
+                        <p class="text-base text-gray-800">@Model.UpdatedAt.ToString("MM/dd/yyyy")</p>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <partial name="_ToastError" />
+}

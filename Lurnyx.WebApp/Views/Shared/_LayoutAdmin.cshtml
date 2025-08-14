@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>@ViewData["Title"] - Admin</title>
+    <link rel="stylesheet" href="~/css/output.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    @RenderSection("styles", required: false)
+</head>
+
+<body class="flex min-h-screen bg-white overflow-hidden w-full">
+    <div class="w-full flex mx-auto items-start justify-center">
+        <!-- Sidebar -->
+        <aside class="flex w-64 bg-white shadow sticky flex-shrink-0 top-0 h-screen">
+            <partial name="_AdminSidebar" />
+        </aside>
+
+        <!-- Main content wrapper -->
+        <div class="flex-1 flex flex-col h-screen">
+            <!-- Header -->
+            <partial name="_AdminHeader" />
+
+            <!-- Main content -->
+            <main class="flex-1 p-6 overflow-y-auto bg-white">
+                @RenderBody()
+                <partial name="_AdminFooter" />
+            </main>
+        </div>
+    </div> 
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    </environment>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        toastr.options = {
+            positionClass: "toast-top-center",
+            timeOut: 3000,
+            closeButton: true,
+            progressBar: true
+        };
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+
+</html>

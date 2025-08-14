@@ -1,0 +1,359 @@
+@using Lurnyx.Data.Models
+@using Lurnyx.Services.ServiceModels
+@using System.Web
+
+@model PaginatedList<TopicDto>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Manage Topics";
+
+    var searchQuery = ViewData["SearchQuery"] as string;
+    var selectedCategory = (int)(ViewData["SelectedCategory"] ?? 0);
+    var selectedTraining = (int)(ViewData["SelectedTraining"] ?? 0);
+    var categories = ViewData["TrainingCategories"] as SelectList;
+    var trainings = ViewData["Trainings"] as SelectList;
+}
+
+<!-- Backdrop Blur Overlay -->
+<div id="backdropModal" class="hidden fixed inset-0 backdrop-blur-xs z-40"></div>
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-lg">
+        <form id="deleteForm" asp-action="DeleteConfirmed" asp-controller="Topic" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="deleteTopicId" name="id" />
+            <input type="hidden" id="deleteTrainingId" name="trainingId" />
+
+            <div class="relative bg-white rounded-2xl shadow-xl p-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800">Delete Topic</h1>
+                    <button type="button" onclick="hideModal()"
+                        class="text-gray-400 hover:text-gray-500 rounded-full p-1 hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Warning Section -->
+                <div class="flex flex-col items-center text-center mb-6">
+
+                    <div class="p-3 bg-red-100 rounded-full mb-3">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-800">Are you sure?</h3>
+                    <p class="text-gray-600 mt-2">
+                        You are about to delete the topic "<span id="modalTopicName"
+                            class="font-bold text-gray-800"></span>".
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <!-- Warning Box for Resource Deletion -->
+                <div id="modalResourceWarning" class="bg-red-100 rounded-lg border border-red-300 p-4 mb-6">
+                    <p class="text-red-800 font-normal mb-2"><span class="font-semibold">WARNING:</span> This will also
+                        delete <span id="modalResourceCount"></span> associated resource(s).</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button type="button" onclick="hideModal()"
+                        class="flex-1 py-3 px-4 text-base font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 py-3 px-4 text-base font-medium text-white bg-red-600 rounded-lg border border-transparent hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                        Delete Topic
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="container px-4 pt-2 py-4 mx-auto ">
+    <!-- Page Heading -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Manage Topics</h1>
+        <!-- FIX: Changed the button to link to the Topic controller's Create action. -->
+        <a asp-action="Create" asp-controller="Topic"
+            class="group flex items-center bg-[#1F7A8C] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#195b69] transition-all duration-300 hover:shadow-lg font-bold">
+            <i class="fas fa-plus mr-2"></i>
+            Add Topic
+        </a>
+    </div>
+
+    <!-- Updated Search Form -->
+    <form asp-action="Index" asp-controller="Topic" method="get" id="searchForm"
+          class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
+        <div class="flex flex-col md:flex-row gap-4 items-end">
+            <!-- Search Input with Clear Button -->
+            <div class="relative flex-grow w-full md:w-auto">
+                <div class="relative">
+                    <input type="text" id="searchQuery" name="searchQuery" placeholder="Search by topic title..."
+                           class="w-full h-11 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all duration-200 peer"
+                           value="@ViewData["CurrentFilter"]">
+                    <!-- Search Icon (hidden when input has value) -->
+                    <div class="absolute right-3 top-3 peer-[&:not(:placeholder-shown)]:hidden">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <!-- Clear Button (only visible when there's text) -->
+                    <button type="button" onclick="clearSearchBar()"
+                            class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 hidden peer-[&:not(:placeholder-shown)]:block">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Training Category Filter -->
+            <div class="relative w-full md:w-auto">
+                <select id="trainingCategoryId" name="trainingCategoryId"
+                        asp-items="@(ViewData["TrainingCategories"] as SelectList)"
+                        class="h-11 px-4 pr-8 rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full shadow-sm bg-white text-gray-700 transition-all duration-200">
+                    <option value="">All Training Categories</option>
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Training Filter -->
+            <div class="relative w-full md:w-auto">
+                <select id="trainingId" name="trainingId" asp-items="@(ViewData["Trainings"] as SelectList)"
+                        class="h-11 px-4 pr-8 rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full shadow-sm bg-white text-gray-700 transition-all duration-200">
+                    <option value="">All Trainings</option>
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 w-full md:w-auto">
+                <button type="submit"
+                        class="group flex items-center bg-[#1F7A8C] text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-[#195b69] transition-all duration-300 hover:shadow-lg font-medium h-11">
+                    <i class="fas fa-search mr-2"></i>
+                    Search
+                </button>
+                <!-- Clear All Button -->
+                @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()) ||
+                                !string.IsNullOrEmpty(Context.Request.Query["trainingCategoryId"]) ||
+                                !string.IsNullOrEmpty(Context.Request.Query["trainingId"]))
+                {
+                    <button type="button" onclick="clearAllFilters()"
+                            class="h-11 px-4 flex items-center border border-[#1f7a8c] text-[#1f7a8c] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                        Clear all
+                    </button>
+                }
+            </div>
+        </div>
+    </form>
+    <!-- Topics Grid -->
+    <div class="bg-transparent shadow rounded-lg w-full ">
+        <div class="bg-transparent grid grid-cols-1 gap-6 p-4">
+            @if (Model != null && Model.Items.Any())
+            {
+                @foreach (var topic in Model.Items)
+                {
+                    <div class="w-full bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="flex flex-col md:flex-row">
+                            <!-- Image Section - Modified for consistency -->
+                            <div class="w-full md:w-64 h-48 flex-shrink-0 overflow-hidden">
+                                <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                     src="@(Url.Content(topic.CoverImageUrl ?? "https://placehold.co/400x300?text=No+Image"))"
+                                     alt="Cover image for @topic.Title"
+                                     loading="lazy" />
+                            </div>
+
+                            <!-- Content Section -->
+                            <div class="flex-1 p-6 relative overflow-auto">
+                                <!-- Header Row -->
+                                <div class="flex flex-row justify-between items-center my-auto gap-4 mb-2">
+                                    <h3 class="text-xl font-bold text-[#022b3a] truncate">@topic.Title</h3>
+                                    <!-- Category Tags -->
+                                    <div class="flex flex-wrap gap-2 flex-shrink-0">
+                                        @if (topic.Training != null)
+                                        {
+                                            <div class="flex items-center bg-[#bfdbf7]/90 rounded-md px-3 py-2 max-w-md ">
+                                                <i class="fa-solid fa-layer-group w-5 text-center mr-2 text-gray-700"></i>
+                                                <span class="text-sm font-medium text-[#022b3a]">@topic.Training.Title</span>
+                                            </div>
+                                            @if (topic.Training.TrainingCategory != null)
+                                            {
+                                                <div class="flex items-center bg-[#1f7a8c]/90 rounded-md p-3">
+                                                    <i class="fa-solid fa-chalkboard-user w-5 text-center mr-2 text-white"></i>
+                                                    <span
+                                                        class="text-sm font-medium text-white">@topic.Training.TrainingCategory.Name</span>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Metadata Row -->
+                                <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 text-sm text-gray-600 mt-1">
+                                    @if (topic.UpdatedByUser != null)
+                                    {
+                                        <div class="flex items-center">
+                                            <i class="fas fa-user-tie mr-2 text-gray-500"></i>
+                                            <span>@topic.UpdatedByUser.LastName, @topic.UpdatedByUser.FirstName </span>
+                                        </div>
+                                    }
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-week mr-2 text-gray-500"></i>
+                                        <span>Updated: @topic.UpdatedAt.ToString("MM/dd/yyyy")</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-paperclip mr-2 text-gray-500"></i>
+                                        <span>@topic.ResourceMaterials.Count @(topic.ResourceMaterials.Count == 1 ? "Attachment"
+                                                                                : "Attachments")</span>
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <p class="text-md text-gray-700 line-clamp-1 mb-8">
+                                    @topic.Description
+                                </p>
+
+                                <!-- Footer Actions -->
+                                <div class="absolute bottom-4 right-6 flex items-center justify-end gap-2">
+                                    <a asp-action="Details" asp-controller="Topic" asp-route-id="@topic.Id" title="View Details"
+                                        class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                                        <i class="fas fa-eye text-lg"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-controller="Topic" asp-route-id="@topic.Id" title="Edit Topic"
+                                        class="p-2 text-gray-500 hover:text-green-600 transition-colors">
+                                        <i class="fas fa-pen-to-square text-lg"></i>
+                                    </a>
+                                    <button
+                                        onclick="showModal('@topic.Id', '@HttpUtility.JavaScriptStringEncode(topic.Title)', '@topic.ResourceMaterials.Count', '@topic.TrainingId')"
+                                        title="Delete Topic" class="p-2 text-gray-500 hover:text-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt text-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-500">No topics found.</p>
+                </div>
+            }
+        </div>
+        <partial name="_Pagination" model="Model" />
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ToastError" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('trainingCategoryId');
+            const trainingSelect = document.getElementById('trainingId');
+
+            // Event listener for the Training Category dropdown
+            categorySelect.addEventListener('change', function () {
+                const categoryId = this.value;
+                updateTrainingsDropdown(categoryId);
+            });
+
+            // Event listener for the Training dropdown
+            trainingSelect.addEventListener('change', function () {
+                const trainingId = this.value;
+                if (!trainingId) {
+                    return;
+                }
+                updateCategoryDropdown(trainingId);
+            });
+
+            // Fetches trainings based on the selected category and updates the training dropdown
+            function updateTrainingsDropdown(categoryId) {
+                fetch(`@Url.Action("GetTrainingsForCategory", "Topic")?categoryId=${categoryId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear current training options and add the default "All" option
+                        trainingSelect.innerHTML = '<option value="">All Trainings</option>';
+                        // Populate with new options from the API
+                        data.forEach(training => {
+                            const option = document.createElement('option');
+                            option.value = training.id;
+                            option.text = training.title;
+                            trainingSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching trainings:', error));
+            }
+
+            // Fetches the category for a selected training and updates the category dropdown
+            function updateCategoryDropdown(trainingId) {
+                fetch(`@Url.Action("GetCategoryForTraining", "Topic")?trainingId=${trainingId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Set the category dropdown to the correct value, or to "" if the training has no category
+                        categorySelect.value = data.categoryId || "";
+                    })
+                    .catch(error => console.error('Error fetching category for training:', error));
+            }
+
+            window.showModal = function(topicId, topicName, resourceCount, trainingId) {
+                document.getElementById('deleteTopicId').value = topicId;
+                document.getElementById('deleteTrainingId').value = trainingId;
+                document.getElementById('modalTopicName').innerText = topicName;
+
+                const resourceWarning = document.getElementById('modalResourceWarning');
+                if (resourceCount > 0) {
+                    document.getElementById('modalResourceCount').innerText = resourceCount;
+                    resourceWarning.classList.remove('hidden');
+                } else {
+                    resourceWarning.classList.add('hidden');
+                }
+
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('backdropModal').classList.remove('hidden');
+            }
+
+            window.hideModal = function() {
+                document.getElementById('deleteModal').classList.add('hidden');
+                document.getElementById('backdropModal').classList.add('hidden');
+            }
+
+            document.getElementById('backdropModal').addEventListener('click', hideModal);
+
+            window.clearSearchBar = function() {
+                const searchInput = document.getElementById('searchQuery');
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+
+            window.clearAllFilters = function() {
+                const baseUrl = window.location.origin + '@Url.Action("Index", "Topic")';
+                window.location.href = baseUrl;
+            }
+        });
+    </script>
+}

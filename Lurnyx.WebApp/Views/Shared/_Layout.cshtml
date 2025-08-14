@@ -1,0 +1,69 @@
+﻿@using static Lurnyx.Resources.Views.Screen
+@{
+    var showHeader = ViewBag?.LoginView == null || ViewBag?.LoginView == true;
+}
+
+<!DOCTYPE html>
+<html lang="en" class="@(Context.Request.Cookies["Theme"] == "Dark" ? "dark" : "")"
+      data-theme="@(Context.Request.Cookies["Theme"]?.ToLower() ?? "light")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <script>
+        // Immediately set theme before any rendering
+        (function() {
+            const storedTheme = localStorage.getItem('color-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = storedTheme ? storedTheme === 'dark' : systemDark;
+
+            // Set initial theme class BEFORE first paint
+            if (initialTheme) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Store in HTML attribute for easy CSS access
+            document.documentElement.setAttribute('data-theme', initialTheme ? 'dark' : 'light');
+        })();
+    </script>
+
+    @await RenderSectionAsync("styles", required: false)
+
+    <link rel="stylesheet" href="~/css/output.css" />
+</head>
+
+<body class="min-h-screen flex flex-col">
+    @if (showHeader)
+    {
+        <header class="sticky top-0 z-50">
+            <partial name="_Header" />
+        </header>
+    }
+
+    <main class="flex-grow @(ViewBag.LoginView == true ? "pt-0" : "")">
+        @RenderBody()
+    </main>
+
+    <footer class="mt-auto">
+        <partial name="_Footer" />
+    </footer>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.js"></script>
+    <script src="https://kit.fontawesome.com/7a7c645416.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        toastr.options = {
+            positionClass: "toast-top-center",
+            timeOut: 3000,
+            closeButton: true,
+            progressBar: true
+        };
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,323 @@
+﻿@using Lurnyx.Services.ServiceModels
+@model Lurnyx.WebApp.Models.PaginationTrainingsViewModel
+@{
+    ViewData["Title"] = "Trainings";
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/output.css?v=1.0.0" />
+}
+
+<div>
+    <!-- Background Wave for Dark Mode -->
+    <img src="~/img/BackgroundWave2.svg"
+         class="fixed inset-0 w-screen h-screen object-cover opacity-0 dark:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"
+         alt="background wave">
+</div>
+
+<div class="container mx-auto px-6 py-8 dark:text-gray-100">
+    <!-- Search and Filter Section -->
+    <form method="get" asp-action="Index" asp-controller="Trainings"
+          class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 p-6 shadow-sm backdrop-blur-sm mb-8">
+        <div class="flex flex-col md:flex-row gap-4 items-center">
+            <!-- Search Input with Clear Button -->
+            <div class="relative flex-grow">
+                <input type="text" name="searchQuery" placeholder="Search training..."
+                       class="w-full h-12 px-4 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-white peer"
+                       value="@Model.CurrentSearchQuery"
+                       id="searchInput">
+
+                <!-- Search Icon (hidden when input has value) -->
+                <div class="absolute right-4 top-3 peer-[&:not(:placeholder-shown)]:hidden">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+
+                <!-- Clear Button (only visible when there's text) -->
+                <button type="button" onclick="clearSearchBar()"
+                        class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hidden peer-[&:not(:placeholder-shown)]:block">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Filter by Ratings -->
+            <div class="relative">
+                <select name="ratingFilter" id="ratingFilter"
+                        class="h-11 px-4 pr-8 rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full shadow-sm bg-white text-gray-700 transition-all duration-200 dark:border-gray-600 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-white">
+                    <option value="">Filter by Ratings</option>
+                    <option value="5" selected="@(Model.CurrentRatingFilter == "5")">5 Stars Rating</option>
+                    <option value="4" selected="@(Model.CurrentRatingFilter == "4")">4+ Stars Rating</option>
+                    <option value="3" selected="@(Model.CurrentRatingFilter == "3")">3+ Stars Rating</option>
+                    <option value="2" selected="@(Model.CurrentRatingFilter == "2")">2+ Stars Rating</option>
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Filter by Categories -->
+            <div class="relative">
+                <select name="categoryFilter" id="categoryFilter"
+                        class="h-11 px-4 pr-8 rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full shadow-sm bg-white text-gray-700 transition-all duration-200 dark:border-gray-600 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700/50 dark:text-white">
+                    <option value="">Filter by Categories</option>
+                    @foreach (var category in Model.AllCategories)
+                    {
+                        <option value="@category.Name" selected="@(Model.CurrentCategoryFilter == category.Name)">
+                            @category.Name
+                        </option>
+                    }
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="h-12 px-6 bg-[#1f7a8c] hover:bg-[#2FA3BA] dark:bg-[#2A8793] dark:hover:bg-[#3BADBC] text-white rounded-lg transition-colors cursor-pointer">
+                    Search
+                </button>
+
+                @if (!string.IsNullOrEmpty(Model.CurrentSearchQuery) || !string.IsNullOrEmpty(Model.CurrentRatingFilter) || !string.IsNullOrEmpty(Model.CurrentCategoryFilter))
+                {
+                    <button type="button" onclick="clearAllFilters()"
+                            class="h-12 px-4 flex items-center border border-[#1f7a8c] dark:border-white text-[#1f7a8c] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors cursor-pointer">
+                        Clear All
+                    </button>
+                }
+            </div>
+        </div>
+    </form>
+
+    <!-- Training Cards Grid -->
+@if (Model.Trainings != null && Model.Trainings.Items.Any())
+{
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            @foreach (var training in Model.Trainings.Items)
+            {
+                <div class="bg-white dark:bg-gray-800/30 rounded-lg border border-[#f3f4f6] dark:border-white/20 shadow-sm overflow-hidden backdrop-blur-sm transition-all duration-300 transform opacity-0 animate-fade-in-up"
+                     style="animation-delay: @(100 * Model.Trainings.Items.IndexOf(training))ms">
+                    <div class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                        <img src="@(Url.Content(training.CoverImageUrl ?? "https://placehold.co/600x400/EBF4F6/022B3A?text=No+Image"))"
+                             alt="@training.Title"
+                             class="w-full h-48 object-cover transition-transform duration-500">
+
+                        <!-- Status Badge with improved styling and status-based colors -->
+                        @{
+                            var status = training.UserTrainingProgress?.Status.ToString() ?? "";
+                            var statusClasses = new Dictionary<string, string>
+                            {
+                                ["STARTED"] = "bg-blue-100 text-blue-800",
+                                ["COMPLETED"] = "bg-emerald-100 text-emerald-800",
+                                ["ENROLLED"] = "bg-red-100 text-red-800",
+                                ["VIEWED"] = "bg-red-100 text-red-800",
+                            };
+                            var badgeClass = statusClasses.GetValueOrDefault(status, "bg-gray-100 text-gray-800");
+                        }
+
+                        <span class="absolute bottom-3 right-3 px-3 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm @badgeClass">
+                            @status
+                        </span>
+
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-[#bfe5f0] dark:bg-[#1F7A8C] text-[#022b3a] dark:text-white px-3 py-1 rounded-full text-sm font-medium">
+                                @(training.TrainingCategory?.Name ?? "Unassigned")
+                            </span>
+                            <div class="flex justify-center gap-2" id="starRating">
+                                @{
+                                    int fullStars = (int)Math.Floor(training.AverageRating);
+                                    bool hasHalfStar = training.AverageRating - fullStars >= 0.5;
+
+                                    for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= fullStars)
+                                        {
+                                            <!-- Full star -->
+                                            <svg class="w-5 h-5 text-yellow-400 hover:scale-110 transition-transform duration-150 cursor-pointer rating-star"
+                                                 data-rating="@i" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                        else if (i == fullStars + 1 && hasHalfStar)
+                                        {
+                                            <!-- Half star -->
+                                            <svg class="w-5 h-5 text-yellow-400 hover:scale-110 transition-transform duration-150 cursor-pointer rating-star"
+                                                 data-rating="@i" viewBox="0 0 20 20">
+                                                <defs>
+                                                    <linearGradient id="half-star-@training.Id-@i" x1="0" x2="100%" y1="0" y2="0">
+                                                        <stop offset="50%" stop-color="currentColor" />
+                                                        <stop offset="50%" stop-color="gray" stop-opacity="0.3" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path fill="url(#half-star-@training.Id-@i)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <!-- Empty star -->
+                                            <svg class="w-5 h-5 text-gray-300 dark:text-gray-500 hover:scale-110 transition-transform duration-150 cursor-pointer rating-star"
+                                                 data-rating="@i" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        }
+                                    }
+                                }
+                                <span class="text-gray-500 dark:text-gray-300 text-sm">
+                                    @training.AverageRating.ToString("0.0")
+                                </span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">@training.Title</h3>
+                        <p class="text-gray-600 dark:text-blue-200 mb-4">By @training.Author</p>
+                        <button onclick="window.location.href='@Url.Action("Training", "Trainings", new { id = training.Id })'"
+                                class="w-full bg-[#1f7a8c] hover:bg-[#2FA3BA] dark:bg-[#033F55] dark:hover:bg-[#255D72] text-white py-2 rounded-lg transition-colors cursor-pointer">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+}
+else
+{
+        <div class="text-center py-12 transition-all duration-500 transform opacity-0 animate-fade-in">
+            <p class="text-gray-500 dark:text-white">No trainings found matching your criteria.</p>
+        </div>
+}
+
+    <!-- Pagination -->
+@if (Model.Trainings != null && Model.Trainings.TotalPages > 1)
+{
+        <div class="flex justify-center items-center gap-2 mb-8 transition-all duration-500 transform opacity-0 animate-fade-in">
+            <!-- Previous Button -->
+            <a asp-action="Index" asp-route-searchQuery="@Model.CurrentSearchQuery"
+               asp-route-ratingFilter="@Model.CurrentRatingFilter" asp-route-categoryFilter="@Model.CurrentCategoryFilter"
+               asp-route-page="@(Model.Trainings.PageNumber - 1)"
+               class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors @(Model.Trainings.HasPreviousPage ? "" : "opacity-50 pointer-events-none")">
+                <svg class="w-5 h-5 text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+
+            <!-- Always show first page -->
+            <a asp-action="Index" asp-route-searchQuery="@Model.CurrentSearchQuery"
+               asp-route-ratingFilter="@Model.CurrentRatingFilter" asp-route-categoryFilter="@Model.CurrentCategoryFilter"
+               asp-route-page="1"
+               class="w-10 h-10 flex items-center justify-center rounded-lg transition-colors @(1 == Model.Trainings.PageNumber ? "bg-[#1f7a8c] dark:bg-[#02465E] text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50")">
+                1
+            </a>
+
+            @if (Model.Trainings.PageNumber > 3)
+            {
+                <span class="w-10 h-10 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800/30 text-gray-500 dark:text-gray-300">
+                    ...
+                </span>
+            }
+
+            @{
+                int startPage = Math.Max(2, Model.Trainings.PageNumber - 1);
+                int endPage = Math.Min(Model.Trainings.TotalPages - 1, Model.Trainings.PageNumber + 1);
+
+                for (int i = startPage; i <= endPage; i++)
+                {
+                    <a asp-action="Index" asp-route-searchQuery="@Model.CurrentSearchQuery"
+                       asp-route-ratingFilter="@Model.CurrentRatingFilter" asp-route-categoryFilter="@Model.CurrentCategoryFilter"
+                       asp-route-page="@i"
+                       class="w-10 h-10 flex items-center justify-center rounded-lg transition-colors @(i == Model.Trainings.PageNumber ? "bg-[#1f7a8c] dark:bg-[#02465E] text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50")">
+                        @i
+                    </a>
+                }
+            }
+
+            @if (Model.Trainings.PageNumber < Model.Trainings.TotalPages - 2)
+            {
+                <span class="w-10 h-10 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-300">
+                    ...
+                </span>
+            }
+
+            <!-- Always show last page if different from first page -->
+            @if (Model.Trainings.TotalPages > 1)
+            {
+                <a asp-action="Index" asp-route-searchQuery="@Model.CurrentSearchQuery"
+                   asp-route-ratingFilter="@Model.CurrentRatingFilter" asp-route-categoryFilter="@Model.CurrentCategoryFilter"
+                   asp-route-page="@Model.Trainings.TotalPages"
+                   class="w-10 h-10 flex items-center justify-center rounded-lg transition-colors @(Model.Trainings.TotalPages == Model.Trainings.PageNumber ? "bg-[#1f7a8c] dark:bg-[#02465E] text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50")">
+                    @Model.Trainings.TotalPages
+                </a>
+            }
+
+            <!-- Next Button -->
+            <a asp-action="Index" asp-route-searchQuery="@Model.CurrentSearchQuery"
+               asp-route-ratingFilter="@Model.CurrentRatingFilter" asp-route-categoryFilter="@Model.CurrentCategoryFilter"
+               asp-route-page="@(Model.Trainings.PageNumber + 1)"
+               class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors @(Model.Trainings.HasNextPage ? "" : "opacity-50 pointer-events-none")">
+                <svg class="w-5 h-5 text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+}
+
+
+@section Scripts {
+        <partial name="_ToastError" />
+
+
+        <script>
+            function clearSearchBar() {
+                const searchInput = document.getElementById('searchInput');
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input')); // Trigger the visibility change
+            }
+
+            function clearAllFilters() {
+                window.location.href = '@Url.Action("Index", "Trainings")';
+            }
+        </script>
+
+        <style>
+            /* Animation classes */
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-out forwards;
+            }
+
+            /* Keyframes */
+            @@keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @@keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+        </style>
+}

@@ -1,0 +1,60 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "preLaunch",
+      "dependsOn": ["Start Database Container", "Build Tailwind CSS", "build"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Lurnyx.WebApp/Lurnyx.WebApp.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Start Database Container",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "up", "-d"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Tailwind CSS",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "tailwindcss",
+        "-i",
+        "Lurnyx.WebApp/wwwroot/css/input.css",
+        "-o",
+        "Lurnyx.WebApp/wwwroot/css/output.css"
+      ],
+      "problemMatcher": []
+    },
+    {
+      // This is the watch task. It is no longer part of the F5 launch sequence.
+      // You can now run this manually when you are actively working on the UI.
+      "label": "Run Tailwind CSS Watch",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "tailwindcss",
+        "-i",
+        "Lurnyx.WebApp/wwwroot/css/input.css",
+        "-o",
+        "Lurnyx.WebApp/wwwroot/css/output.css",
+        "--watch"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

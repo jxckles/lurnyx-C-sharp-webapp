@@ -1,0 +1,48 @@
+# A friendly name for the workflow, which will be displayed on GitHub
+name: .NET Build CI
+
+# TRIGGERS
+# This section defines when the workflow will run.
+on:
+  # Run on any pull request that targets the 'dev' branch
+  pull_request:
+    branches: ["main", "dev"]
+
+# JOBS
+# A workflow is made up of one or more jobs that can run in sequence or in parallel.
+jobs:
+  build:
+    # The type of virtual machine to run the job on. 'ubuntu-latest' is a common and cost-effective choice.
+    runs-on: ubuntu-latest
+
+    # The sequence of tasks that will be executed for this job.
+    steps:
+      # Step 1: Check out the repository's code
+      # This action allows the workflow to access the code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the .NET environment
+      # This action installs the specified version of the .NET SDK on the runner.
+      - name: Setup .NET 6.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+
+      # Step 3: Restore NuGet packages
+      # This runs the 'dotnet restore' command, which is also in the README.
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      # Step 4: Build the solution
+      # This runs the 'dotnet build' command to compile the code and check for errors.
+      # --no-restore is used for efficiency since we already restored in the previous step.
+      # --configuration Release is standard practice for CI builds.
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+    # Optional Next Step: Run Tests
+    # After a successful build, the next logical step is to run the tests.
+    # You can add this step later when you have a test project set up.
+    # - name: Run tests
+    #   run: dotnet test --no-build --verbosity normal

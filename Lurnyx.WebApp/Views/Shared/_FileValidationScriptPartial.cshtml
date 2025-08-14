@@ -1,0 +1,124 @@
+<!--
+  This script manages the dynamic addition of resource material forms (files and URLs)
+  and provides client-side validation for uploaded files.
+-->
+<script>
+    // Use a global index to ensure unique names for dynamically added fields.
+    let resourceIndex = 0;
+
+    /**
+     * Adds a new resource input section to the form.
+     * param {string} type - The type of resource to add ('PPTX', 'PDF', 'PNG', 'JPG', 'WEBP', 'MP4', 'URL').
+     */
+    function addResource(type) {
+        const container = document.getElementById('resourceUploadContainer');
+        const index = resourceIndex++;
+        const fileInputId = `NewResources_${index}__File`;
+        const errorSpanId = `error_span_${index}`;
+
+        let acceptTypes = "";
+        let maxSizeMB = 10; 
+        let isUrl = type.toUpperCase() === 'URL';
+        let displayName = type.toUpperCase();
+
+        if (!isUrl) {
+            switch (type.toUpperCase()) {
+                case 'PPTX':
+                    acceptTypes = ".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation";
+                    break;
+                case 'PDF':
+                    acceptTypes = ".pdf,application/pdf";
+                    break;
+                case 'PNG':
+                case 'JPG':
+                case 'JPEG':
+                case 'WEBP':
+                    acceptTypes = ".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp";
+                    displayName = "Image";
+                    break;
+                case 'MP4':
+                    acceptTypes = ".mp4,video/mp4";
+                    break;
+            }
+        }
+
+        // Generate name field only for URLs, not for files
+        const nameFieldHtml = isUrl 
+            ? `<div>
+                   <label for="NewResources_${index}__Name" class="block text-sm font-medium text-gray-700 mb-1">Resource Name</label>
+                   <input type="text" name="NewResources[${index}].Name" id="NewResources_${index}__Name" maxlength="255"  class="block w-full rounded-md bg-white py-2 px-3 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-300 focus:border-[#022B3A] focus:ring-2 focus:ring-[#022B3A]/20" placeholder="e.g., Intro to C Programming">
+               </div>` 
+            : '';
+
+        // Conditionally generate either a file input or a URL input.
+        const fileOrUrlInputHtml = isUrl
+            ? `<div>
+                   <label for="NewResources_${index}__Url" class="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
+                   <input type="url" name="NewResources[${index}].FileAccessUrl" id="NewResources_${index}__Url" maxlength="255" class="block w-full rounded-md bg-white py-2 px-3 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-300 focus:border-[#022B3A] focus:ring-2 focus:ring-[#022B3A]/20" placeholder="Paste video link here (e.g., YouTube)">
+               </div>`
+            : `<div>
+                   <label for="${fileInputId}" class="block text-sm font-medium text-gray-700 mb-1">File (Max ${maxSizeMB}MB)</label>
+                   <input type="file" name="NewResources[${index}].File" id="${fileInputId}" accept="${acceptTypes}"
+                          onchange="validateResourceFile(this, ${maxSizeMB}, '${errorSpanId}', '${acceptTypes}')" 
+                          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                   <span id="${errorSpanId}" class="text-red-600 text-xs mt-1 hidden"></span>
+               </div>`;
+
+        const resourceHtml = `
+            <div class="resource-item p-4 rounded-lg border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-bold text-gray-600">Resource: ${displayName}</h4>
+                    <button type="button" onclick="this.closest('.resource-item').remove()" class="text-gray-400 hover:text-red-500 transition-colors" title="Remove Resource">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    ${nameFieldHtml}
+                    <div>
+                        <label for="NewResources_${index}__Metadata" class="block text-sm font-medium text-gray-700 mb-1">Metadata (Optional)</label>
+                        <input type="text" name="NewResources[${index}].Metadata" maxlength="15" id="NewResources_${index}__Metadata" class="block w-full rounded-md bg-white py-2 px-3 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-300 focus:border-[#022B3A] focus:ring-2 focus:ring-[#022B3A]/20" placeholder="e.g., 1 slide, 2 pages, 01:10:32">
+                    </div>
+                    ${fileOrUrlInputHtml}
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', resourceHtml);
+    }
+
+    /**
+     * Validates a resource file based on its size and type.
+     * param {HTMLInputElement} input - The file input element.
+     * param {number} maxSizeMB - The maximum allowed file size in megabytes.
+     * param {string} errorSpanId - The ID of the span element to display errors.
+     * param {string} allowedTypes - A comma-separated string of allowed file types/extensions.
+     */
+    function validateResourceFile(input, maxSizeMB, errorSpanId, allowedTypes) {
+        const errorSpan = document.getElementById(errorSpanId);
+        const file = input.files[0];
+        const MAX_SIZE_BYTES = maxSizeMB * 1024 * 1024;
+
+        errorSpan.classList.add('hidden');
+        errorSpan.textContent = '';
+
+        if (!file) { return; }
+
+        if (file.size > MAX_SIZE_BYTES) {
+            errorSpan.textContent = `File is too large. Maximum size is ${maxSizeMB}MB.`;
+            errorSpan.classList.remove('hidden');
+            input.value = ''; 
+            return;
+        }
+
+        const validTypes = allowedTypes.split(',').map(t => t.trim().toLowerCase());
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!validTypes.includes(file.type.toLowerCase()) && !validTypes.includes(fileExtension)) {
+            errorSpan.textContent = `Invalid file type. Please select a valid file.`;
+            errorSpan.classList.remove('hidden');
+            input.value = ''; 
+            return;
+        }
+    }
+</script>

@@ -1,0 +1,156 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+    #toast-container {
+        z-index: 999999 !important;
+    }
+
+    .toast {
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        padding: 16px 20px 16px 60px !important;
+        font-family: 'Segoe UI', Roboto, sans-serif !important;
+        min-height: 60px !important;
+        position: relative !important;
+    }
+
+    /* Toast Icon Positioning */
+    .toast:before {
+        position: absolute !important;
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        left: 20px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 24px !important;
+        color: white !important;
+    }
+
+
+    /* Success Toast */
+    .toast-success {
+        background-color: #4caf50 !important;
+        border-left: 4px solid #2e7d32 !important;
+    }
+
+    /* Error Toast */
+    .toast-error {
+        background-color: #f44336 !important;
+        border-left: 4px solid #c62828 !important;
+    }
+
+    /* Warning Toast */
+    .toast-warning {
+        background-color: #ff9800 !important;
+        border-left: 4px solid #e65100 !important;
+    }
+
+    /* Info Toast */
+    .toast-info {
+        background-color: #2196f3 !important;
+        border-left: 4px solid #1565c0 !important;
+    }
+
+    /* Close Button */
+    .toast-close-button {
+        color: white !important;
+        opacity: 0.8 !important;
+        font-size: 18px !important;
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+    }
+
+    /* Toast Content */
+    .toast-message {
+        padding-right: 20px !important; /* Space for close button */
+    }
+
+    .toast-title {
+        font-weight: bold !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* Progress Bar */
+    .toast-progress {
+        height: 3px !important;
+        opacity: 0.6 !important;
+        bottom: 0 !important;
+    }
+
+    /* Success Progress Bar */
+    .toast-success .toast-progress {
+        background-color: #2e7d32 !important;
+    }
+
+    /* Error Progress Bar */
+    .toast-error .toast-progress {
+        background-color: #c62828 !important;
+    }
+
+    /* Warning Progress Bar */
+    .toast-warning .toast-progress {
+        background-color: #e65100 !important;
+    }
+
+    /* Info Progress Bar */
+    .toast-info .toast-progress {
+        background-color: #1565c0 !important;
+    }
+</style>
+
+<script>
+    toastr.options = {
+        positionClass: "toast-top-right",
+        timeOut: 3000,
+        extendedTimeOut: 1000,
+        closeButton: true,
+        progressBar: true,
+        newestOnTop: true,
+        preventDuplicates: true,
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+        closeMethod: "fadeOut",
+        tapToDismiss: false,
+        escapeHtml: true,
+        showDuration: 300,
+        hideDuration: 300
+    };
+
+    @if (TempData["ToastError"] != null)
+    {
+            <text>
+            toastr.error("@Html.Raw(TempData["ToastError"])", "Error", {
+                timeOut: 5000
+            });
+            </text>
+    }
+
+    @if (TempData["ToastSuccess"] != null)
+    {
+            <text>
+            toastr.success("@Html.Raw(TempData["ToastSuccess"])", "Success", {
+                timeOut: 3000
+            });
+            </text>
+    }
+
+    @if (TempData["ToastWarning"] != null)
+    {
+            <text>
+            toastr.warning("@Html.Raw(TempData["ToastWarning"])", "Warning", {
+                timeOut: 4000
+            });
+            </text>
+    }
+
+    @if (TempData["ToastInfo"] != null)
+    {
+            <text>
+            toastr.info("@Html.Raw(TempData["ToastInfo"])", "Info", {
+                timeOut: 3000
+            });
+            </text>
+    }
+</script>

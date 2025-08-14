@@ -1,0 +1,142 @@
+@model Lurnyx.Services.ServiceModels.TrainingDto
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = Model.Title;
+}
+
+<div class=" mx-auto p-6 bg-white rounded-2xl shadow-sm">
+    <div class="flex justify-between items-center mb-6 w-full">
+        <h1 class="text-3xl font-bold text-[#022b3a]">Training Details</h1>
+        <a href="@Url.Action("Index", "Training")"
+            class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center">
+            View Training List
+        </a>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="relative pb-0 rounded-xl overflow-hidden shadow-md">
+        <img class="w-full h-60 object-cover"
+            src="@(!string.IsNullOrEmpty(Model.CoverImageUrl) ? Model.CoverImageUrl : "https://placehold.co/902x237?text=No+Image")"
+            alt="@Model.Title" />
+        <div class="absolute bottom-4 right-4">
+            <a href="@Url.Action("Edit", "Training", new { id = @Model.Id })"
+                class="text-sm font-medium bg-[#1F7A8C] text-white py-2.5 px-5 rounded-lg flex items-center cursor-pointer hover:bg-[#2FA3BA] transition-colors duration-200 shadow-md hover:shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24
+                    24" stroke="currentColor">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Training
+            </a>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-start my-4">
+        <div>
+            <h2 class="text-3xl font-bold text-[#022b3a]">@Model.Title</h2>
+            <div class="flex items-center mt-2">
+                <div class="w-6 h-6 mr-2 flex items-center justify-center">
+                    <i class="fa-solid fa-folder text-[#022b3a]/70"></i>
+                </div>
+                <span class="text-lg text-[#022b3a]/80 font-medium">@(Model.TrainingCategory?.Name ??
+                                        "Unassigned")</span>
+            </div>
+        </div>
+        <div class="px-4 py-1 bg-[#bfdbf7] rounded-xl">
+            <span class="text-[#1f7a8c] text-base font-semibold">@Model.Difficulty</span>
+        </div>
+    </div>
+
+    <div class="flex items-center mb-6">
+        <div class="flex mr-2">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <i class="fas fa-star @(i <= Math.Floor(Model.AverageRating) ? "text-yellow-400" : "text-gray-300")"></i>
+            }
+        </div>
+        <span class="text-sm text-gray-600">@Model.AverageRating.ToString("0.00") (@Model.RatingCount
+            @(@Model.RatingCount < 2 ? "review" : "reviews"))</span>
+    </div>
+
+    <div class="mb-8">
+        <h3 class="text-2xl font-bold text-[#022b3a] mb-3">Description</h3>
+        <p class="text-lg text-[#022b3a]/80 font-medium">@Model.Description</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-[#e6e6fb]/80 rounded-xl p-5 flex items-center gap-4 border border-gray-300">
+            <div class="w-10 h-10 rounded-full bg-[#022b3a]/10 flex items-center justify-center"><i
+                    class="fa-solid fa-user text-[#022b3a] text-2xl"></i></div>
+            <div>
+                <p class="text-sm text-black/70 font-medium uppercase">Author</p>
+                <p class="text-xl text-[#0d0a0a] font-semibold">@Model.Author</p>
+            </div>
+        </div>
+        <div class="bg-[#e6e6fb]/80 rounded-xl p-5 flex items-center gap-4 border border-gray-300">
+            <div class="w-10 h-10 rounded-full bg-[#022b3a]/10 flex items-center justify-center"><i
+                    class="fa-solid fa-signal text-[#022b3a] text-xl"></i></div>
+            <div>
+                <p class="text-sm text-black/70 font-medium uppercase">Difficulty Level</p>
+                <p class="text-xl text-[#0d0a0a] font-semibold">@Model.Difficulty.ToString()</p>
+            </div>
+        </div>
+        <div class="bg-[#e6e6fb]/80 rounded-xl p-5 flex items-center gap-4 border border-gray-300">
+            <div class="w-10 h-10 rounded-full bg-[#022b3a]/10 flex items-center justify-center">
+                <i class="fa-regular fa-calendar text-[#022b3a] text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm text-black/70 font-medium uppercase">Created at</p>
+                <p class="text-xl text-black/90 font-bold">@Model.CreatedAt.ToString("MM/dd/yyyy")</p>
+            </div>
+        </div>
+        <div class="bg-[#e6e6fb]/80 rounded-xl p-5 flex items-center gap-4 border border-gray-300">
+            <div class="w-10 h-10 rounded-full bg-[#022b3a]/10 flex items-center justify-center"><i
+                    class="fa-regular fa-calendar text-[#022b3a] text-xl"></i></div>
+            <div class="flex-1 grid grid-cols-2 gap-4">
+
+                <div>
+                    <p class="text-sm text-black/70 font-medium uppercase">Modified at</p>
+                    <p class="text-xl text-black/90 font-bold">@Model.UpdatedAt.ToString("MM/dd/yyyy")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h3 class="text-2xl font-bold text-[#022b3a] mb-4">Topics in this Training (@Model.Topics.Count)</h3>
+        <div class="grid gap-y-2">
+            @if (Model.Topics != null && Model.Topics.Any())
+            {
+                foreach (var topic in Model.Topics.OrderBy(t => t.Order))
+                {
+                    <a href="@Url.Action("Details", "Topic", new { id = topic.Id })"
+                        class="block bg-white rounded-xl border border-[#bfdbf7] p-4 hover:bg-[#f5f8ff] transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 bg-[#e1e5f2] rounded-lg flex items-center justify-center flex-shrink-0"><i
+                                    class="fa-solid fa-file-alt text-[#022b3a]"></i></div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-[#022b3a]">@topic.Title</h4>
+                                <p class="text-sm text-[#022b3a]/70 line-clamp-1">@topic.Description</p>
+                            </div>
+                            <div class="text-sm text-[#1f7a8c] font-medium ml-4">
+                                <i class="fas fa-clock mr-1"></i>
+                                @topic.DurationInMinutes minutes
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-6 text-center">
+                    <p class="text-gray-500">No topics have been added to this training yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ToastError" />
+}

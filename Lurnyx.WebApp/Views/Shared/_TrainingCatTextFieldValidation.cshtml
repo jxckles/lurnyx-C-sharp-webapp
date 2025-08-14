@@ -1,0 +1,28 @@
+<script>
+    const descriptionInput = document.querySelector('textarea[name="Description"]');
+    const charCount = document.getElementById('charCount');
+    const nameInput = document.querySelector('input[name="Name"]');
+    const nameCharCount = document.getElementById('nameCharCount');
+
+    if (descriptionInput && charCount) {
+        descriptionInput.addEventListener('input', () => {
+            if (descriptionInput.value.length > 250) {
+                descriptionInput.value = descriptionInput.value.slice(0, 250);
+            }
+            charCount.textContent = descriptionInput.value.length;
+        });
+        // Initialize character count
+        charCount.textContent = descriptionInput.value.length;
+    }
+
+    if (nameInput && nameCharCount) {
+        nameInput.addEventListener('input', () => {
+            if (nameInput.value.length > 50) {
+                nameInput.value = nameInput.value.slice(0, 50);
+            }
+            nameCharCount.textContent = nameInput.value.length;
+        });
+        // Initialize character count
+        nameCharCount.textContent = nameInput.value.length;
+    }
+</script>

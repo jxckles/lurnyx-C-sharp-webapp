@@ -1,0 +1,64 @@
+<script>
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+    const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+    function validateAndPreviewImage(input) {
+        const errorSpan = document.getElementById('imageValidationError');
+        const file = input.files[0];
+
+        // Hide previous errors
+        errorSpan.classList.add('hidden');
+        errorSpan.textContent = '';
+
+        if (!file) {
+            // No file selected, do nothing
+            return;
+        }
+
+        // Validation
+        if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+            errorSpan.textContent = 'Invalid file type. Please select a JPG, PNG, or WEBP image.';
+            errorSpan.classList.remove('hidden');
+            input.value = ''; // Clear the invalid file
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            errorSpan.textContent = 'File is too large. Maximum size is 2MB.';
+            errorSpan.classList.remove('hidden');
+            input.value = ''; // Clear the invalid file
+            return;
+        }
+
+        // Preview (if validation passes)
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imagePreview = document.getElementById('imagePreview');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const uploadArea = document.getElementById('uploadArea'); // May not exist on Edit view
+
+            imagePreview.src = e.target.result;
+            if (previewContainer) previewContainer.classList.remove('hidden');
+            if (uploadArea) uploadArea.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearImage() {
+        const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('ImageFile');
+        const errorSpan = document.getElementById('imageValidationError');
+
+        // Reset to initial state
+        if (imagePreview) imagePreview.src = '';
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (uploadArea) uploadArea.classList.remove('hidden');
+        if (fileInput) fileInput.value = '';
+        if (errorSpan) {
+            errorSpan.textContent = '';
+            errorSpan.classList.add('hidden');
+        }
+    }
+</script>
